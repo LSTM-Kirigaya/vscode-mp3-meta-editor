@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="bulma.min.css">
+</head>
+
+<body>
+    <div id="main">
+        <div class="fixed-grid">
+            <div class="grid">
+                <div class="cell">
+                    <figure class="image music-cover">
+                        <img src="https://bulma.io/assets/images/placeholders/128x128.png" />
+                    </figure>
+                </div>
+                <div class="cell">
+                    <div class="editor-container">
+                        <span>名称</span>
+                        <input class="input is-info" type="text" placeholder="输入名称" />
+                    </div>
+                    <div class="editor-container">
+                        <span>标题</span>
+                        <input class="input is-info" type="text" placeholder="输入标题" />
+                    </div>
+                    <div class="editor-container">
+                        <span>艺术家</span>
+                        <input class="input is-primary" type="text" placeholder="输入艺术家" />
+                    </div>
+                    <div class="editor-container">
+                        <span>唱片集</span>
+                        <input class="input is-primary" type="text" placeholder="输入唱片集" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="display: flex;justify-content: space-between;">
+            <div>
+                <button class="button is-primary">上一个</button>
+                <button class="button is-primary">下一个</button>
+            </div>
+            <div>
+                <button class="button is-link">保存</button>
+            </div>
+        </div>
+        <br>
+        <div class="notification is-link">
+            <button class="delete"></button>
+            插件由锦恢开发，欢迎前往 <a href="https://github.com/LSTM-Kirigaya/vscode-mp3-meta-editor">Github</a> 点个 Star 哟 (＾Ｕ＾)ノ~ＹＯ
+          </div>
+    </div>
+</body>
+
+</html>
+
+<style>
+    body {
+        background-color: var(--vscode-background);
+        padding: 20px;
+        padding-top: 50px;
+        display: flex;
+        justify-content: center;
+    }
+
+
+    #main {
+
+        width: 600px;
+    }
+
+
+    .music-cover {
+        width: 250px;
+    }
+
+    .editor-container {
+        margin-bottom: 20px;
+    }
+
+    .hidden {
+        visibility: hidden;
+        opacity: 0;
+        transition: .3s all ease-in-out;
+    }
+</style>
