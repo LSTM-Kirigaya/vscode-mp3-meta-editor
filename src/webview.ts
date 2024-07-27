@@ -17,9 +17,14 @@ function getWebviewContent(extensionPath: string, panel?: vscode.WebviewPanel): 
     return html;
 }
 
+export let webviewPanel: vscode.WebviewPanel | undefined = undefined;
+let openned = false;
 
-export function openWebview(context: vscode.ExtensionContext) {    
-    const panel = vscode.window.createWebviewPanel(
+export function openWebview(context: vscode.ExtensionContext) {
+    if (openned) {
+        return;
+    }
+    webviewPanel = vscode.window.createWebviewPanel(
         'mp3 meta',
         'mp3 meta',
         vscode.ViewColumn.Two,
@@ -30,12 +35,12 @@ export function openWebview(context: vscode.ExtensionContext) {
             enableForms: true
         }
     );
-    
-    const iconPath = fspath.join(context.extensionPath, 'icon', 'guitar.dark.svg');
-    
-    panel.iconPath = vscode.Uri.file(iconPath);
-    const html = getWebviewContent(context.extensionPath, panel);
-    panel.webview.html = html;
+    webviewPanel.onDidDispose(e => {
+        openned = false;
+    });
+    const html = getWebviewContent(context.extensionPath, webviewPanel);
+    webviewPanel.webview.html = html;
+    openned = true;
 }
 
 // let debouncePostMessageHandler: NodeJS.Timeout | undefined = undefined;

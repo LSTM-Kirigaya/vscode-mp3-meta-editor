@@ -14,45 +14,187 @@
             <div class="grid">
                 <div class="cell">
                     <figure class="image music-cover">
-                        <img src="https://bulma.io/assets/images/placeholders/128x128.png" />
+                        <img id="cover" src="blank.png" />
                     </figure>
                 </div>
                 <div class="cell">
                     <div class="editor-container">
-                        <span>名称</span>
-                        <input class="input is-info" type="text" placeholder="输入名称" />
+                        <span>文件名</span>
+                        <input class="input" type="text" placeholder="输入文件名" />
                     </div>
                     <div class="editor-container">
                         <span>标题</span>
-                        <input class="input is-info" type="text" placeholder="输入标题" />
+                        <input class="input" type="text" placeholder="输入标题" />
                     </div>
                     <div class="editor-container">
                         <span>艺术家</span>
-                        <input class="input is-primary" type="text" placeholder="输入艺术家" />
+                        <input class="input" type="text" placeholder="输入艺术家" />
                     </div>
                     <div class="editor-container">
                         <span>唱片集</span>
-                        <input class="input is-primary" type="text" placeholder="输入唱片集" />
+                        <input class="input" type="text" placeholder="输入唱片集" />
                     </div>
                 </div>
             </div>
         </div>
         <div style="display: flex;justify-content: space-between;">
             <div>
-                <button class="button is-primary">上一个</button>
-                <button class="button is-primary">下一个</button>
+                <div class="dropdown" onclick="dropdownCollapse()">
+                    <div class="dropdown-trigger">
+                        <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+                            <span>修改封面</span>
+                            <span class="icon is-small">
+                                <i class="fas fa-angle-down" aria-hidden="true"></i>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                        <div class="dropdown-content">
+                            <a href="#" class="dropdown-item" onclick="chooseFromLocal()"> 从本机选择图片 </a>
+                            <hr class="dropdown-divider" />
+                            <a href="#" class="dropdown-item" onclick="chooseFromNetwork()"> 选择网络上的图片 </a>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div>
-                <button class="button is-link">保存</button>
+                <button class="button is-link" onclick="clickSave()">保存</button>
+                <button class="button" onclick="clickPrev()">上一个</button>
+                <button class="button" onclick="clickNext()">下一个</button>
             </div>
         </div>
         <br>
-        <div class="notification is-link">
+        <div class="notification">
             <button class="delete"></button>
-            插件由锦恢开发，欢迎前往 <a href="https://github.com/LSTM-Kirigaya/vscode-mp3-meta-editor">Github</a> 点个 Star 哟 (＾Ｕ＾)ノ~ＹＯ
-          </div>
+            插件由锦恢开发，欢迎前往 <a href="https://github.com/LSTM-Kirigaya/vscode-mp3-meta-editor">Github</a> 点个 Star 哟
+            (＾Ｕ＾)ノ~ＹＯ
+        </div>
     </div>
 </body>
+
+<script>
+
+    const infoInputs = {};
+    let coverEl = undefined;
+
+    window.onload = async () => {
+        const deletes = document.querySelectorAll('.delete') || [];
+        deletes.forEach(el => {
+            el.addEventListener('click', () => {
+                el.parentNode.classList.add('hidden');
+            });
+        });
+
+        (document.querySelectorAll('.editor-container') || []).forEach(el => {
+            const span = el.children[0];
+            const input = el.children[1];
+            infoInputs[span.textContent] = input;
+        });
+
+        coverEl = document.getElementById('cover');
+    }
+
+    const vscode = acquireVsCodeApi();
+
+    const musicInfo = {
+        name: undefined,
+        title: undefined,
+        artist: undefined,
+        album: undefined,
+        cover: undefined
+    };
+
+    function updateInputs() {
+        infoInputs['文件名'].value = musicInfo.name || '';
+        infoInputs['标题'].value = musicInfo.title || '';
+        infoInputs['艺术家'].value = musicInfo.artist || '';
+        infoInputs['唱片集'].value = musicInfo.album || '';
+
+        updateCover();
+    }
+
+    function updateCover() {
+        if (musicInfo.cover && musicInfo.cover.data && musicInfo.cover.format) {
+            const blob = new Blob([musicInfo.cover.data], { type: musicInfo.cover.format });
+            coverEl.src = URL.createObjectURL(blob);
+        } else {
+            coverEl.src = '';
+        }
+    }
+
+    window.addEventListener('message', event => {
+        const message = event.data;
+        console.log(message);
+        if (message) {
+            switch (message.command) {
+                case 'music-basic-info':
+                    musicInfo.name = message.data.name;
+                    musicInfo.title = message.data.title;
+                    musicInfo.artist = message.data.artist;
+                    musicInfo.album = message.data.album;
+                    musicInfo.cover = message.data.cover;
+
+                    updateInputs();
+                    break;
+                case 'fetch-image':
+                    const format = message.data.mimeType;
+                    const data = message.data.uint8array;
+                    musicInfo.cover.format = format;
+                    musicInfo.cover.data = data;
+                    updateCover();
+                    break;
+                case 'success-save':
+
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    });
+
+    async function clickPrev() {
+        vscode.postMessage({
+            command: 'clickPrev'
+        });
+    }
+
+    async function clickNext() {
+        vscode.postMessage({
+            command: 'clickNext'
+        });
+    }
+
+    async function clickSave() {
+        musicInfo.name = infoInputs['文件名'].value;
+        musicInfo.title = infoInputs['标题'].value;
+        musicInfo.artist = infoInputs['艺术家'].value;
+        musicInfo.album = infoInputs['唱片集'].value;
+
+        vscode.postMessage({
+            command: 'clickSave',
+            data: musicInfo
+        });
+    }
+
+    function dropdownCollapse() {
+        (document.querySelectorAll('.dropdown') || []).forEach(el => {
+            el.classList.toggle('is-active')
+        })
+    }
+
+    function chooseFromLocal() {
+        vscode.postMessage({
+            command: 'chooseFromLocal'
+        });
+    }
+
+    function chooseFromNetwork() {
+        vscode.postMessage({
+            command: 'chooseFromNetwork'
+        });
+    }
+</script>
 
 </html>
 
