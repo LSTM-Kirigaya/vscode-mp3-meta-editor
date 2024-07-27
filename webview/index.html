@@ -139,6 +139,9 @@
                 case 'fetch-image':
                     const format = message.data.mimeType;
                     const data = message.data.uint8array;
+                    if (musicInfo.cover === undefined) {
+                        musicInfo.cover = {};
+                    }
                     musicInfo.cover.format = format;
                     musicInfo.cover.data = data;
                     updateCover();

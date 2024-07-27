@@ -32,8 +32,6 @@ function registerWebview(context: vscode.ExtensionContext) {
                         manager.sendMessage(webviewPanel);
                         break;
                     case 'clickSave':
-                        console.log('enter save', message.data);
-                        
                         manager.saveMusic(context, webviewPanel, message.data);
                         break;
                     case 'chooseFromLocal':
