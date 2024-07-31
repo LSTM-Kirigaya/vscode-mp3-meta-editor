@@ -13,6 +13,7 @@
     "repository": {
         "url": "https://github.com/LSTM-Kirigaya/vscode-mp3-meta-editor"
     },
+    "icon": "images/icon.png",
     "categories": [
         "Programming Languages",
         "Visualization",

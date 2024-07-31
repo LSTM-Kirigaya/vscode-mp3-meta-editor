@@ -157,7 +157,7 @@ class Manage {
         }
 
         // 更改文件 ID3 标签
-        NodeID3.update(tags, currentFile, err => {
+        NodeID3.write(tags, currentFile, err => {
             if (err !== null) {
                 ok = false;
                 vscode.window.showErrorMessage(`保存 ${currentFile} 的标签时发生了如下的错误: ${err}`);
